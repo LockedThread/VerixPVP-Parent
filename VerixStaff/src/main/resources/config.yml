@@ -46,3 +46,21 @@ reports:
         - '&cServer: &f{server-context}'
         - '&cReason: &f{reason}'
         - ''
+staffmode:
+  speed-selector:
+    menu:
+      name: ''
+      size: 27
+      fill:
+        enabled: true
+        color: 'BLACK'
+        enchanted: false
+      close-on-select: true
+      items:
+        9:
+          material: 'WOOL'
+          data: 'RED'
+          name: '&cNormal Speed (0.1x)'
+          lore:
+            - ''
+            - ' &e'

@@ -1,4 +1,4 @@
-package com.verixpvp.verixstaff.reports;
+package com.verixpvp.verixstaff.reports.units;
 
 import com.gameservergroup.gsgcore.commands.post.CommandPost;
 import com.gameservergroup.gsgcore.items.ItemStackBuilder;
@@ -8,6 +8,8 @@ import com.gameservergroup.gsgcore.utils.CallBack;
 import com.google.common.base.Joiner;
 import com.verixpvp.verixstaff.VerixStaff;
 import com.verixpvp.verixstaff.enums.Messages;
+import com.verixpvp.verixstaff.reports.menus.MenuReport;
+import com.verixpvp.verixstaff.reports.objs.Report;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

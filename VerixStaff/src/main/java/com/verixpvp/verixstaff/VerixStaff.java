@@ -2,8 +2,8 @@ package com.verixpvp.verixstaff;
 
 import com.gameservergroup.gsgcore.plugin.Module;
 import com.gameservergroup.gsgcore.utils.CallBack;
-import com.verixpvp.verixstaff.reports.Report;
-import com.verixpvp.verixstaff.reports.UnitReport;
+import com.verixpvp.verixstaff.reports.objs.Report;
+import com.verixpvp.verixstaff.reports.units.UnitReport;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.entity.Player;

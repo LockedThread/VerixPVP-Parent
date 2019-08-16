@@ -1,6 +1,7 @@
-package com.verixpvp.verixstaff.reports;
+package com.verixpvp.verixstaff.reports.objs;
 
 import com.verixpvp.verixstaff.VerixStaff;
+import com.verixpvp.verixstaff.reports.units.UnitReport;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;

@@ -1,8 +1,9 @@
-package com.verixpvp.verixstaff.reports;
+package com.verixpvp.verixstaff.reports.menus;
 
 import com.gameservergroup.gsgcore.menus.Menu;
 import com.gameservergroup.gsgcore.menus.MenuItem;
 import com.verixpvp.verixstaff.VerixStaff;
+import com.verixpvp.verixstaff.reports.objs.Report;
 import org.bukkit.OfflinePlayer;
 
 import java.util.List;
