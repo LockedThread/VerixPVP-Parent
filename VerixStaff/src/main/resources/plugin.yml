@@ -1,0 +1,6 @@
+name: VerixStaff
+main: com.verixpvp.verixstaff.VerixStaff
+version: 1.0.0
+author: LockedThread
+description: VerixPVP's staff plugin by LockedThread
+depend: [GSGCore]

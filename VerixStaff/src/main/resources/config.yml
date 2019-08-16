@@ -1,0 +1,48 @@
+server-context: 'skyblock'
+database:
+  mysql:
+    # Will automatically use 3306 if port is not specified
+    host: 'localhost'
+    database: 'verixstaff'
+    username: 'verixstaff'
+    password: 'password'
+reports:
+  date-format: 'yyyy-MM-dd HH:mm:ss'
+  can-report-yourself: true
+  minimum-character-reason:
+    enabled: false
+    length: 10
+  menu:
+    name: '&cReports: {player}'
+    size: 54
+    blocked-slots:
+      - 45
+      - 46
+      - 47
+      - 48
+      - 49
+      - 50
+      - 51
+      - 52
+      - 53
+    next-page-item:
+      slot: 53
+      material: 'STAINED_GLASS_PANE'
+      data: 'LIME'
+      name: '&aClick to view the next page!'
+    previous-page-item:
+      slot: 45
+      material: 'STAINED_GLASS_PANE'
+      data: 'RED'
+      name: '&aClick to view the previous page!'
+    incident-item:
+      material: 'WOOL'
+      data: 'RED'
+      name: '&c&lINCIDENT'
+      lore:
+        - ''
+        - '&cTime: &f{time}'
+        - '&cReporter: &f{reporter}'
+        - '&cServer: &f{server-context}'
+        - '&cReason: &f{reason}'
+        - ''
