@@ -1,32 +1,33 @@
 package com.verixpvp.verixstaff;
 
+import com.gameservergroup.gsgcore.maven.MavenLibraries;
+import com.gameservergroup.gsgcore.maven.MavenLibrary;
 import com.gameservergroup.gsgcore.plugin.Module;
-import com.gameservergroup.gsgcore.utils.CallBack;
-import com.verixpvp.verixstaff.reports.objs.Report;
+import com.verixpvp.verixstaff.redis.pubsub.StaffPubSub;
+import com.verixpvp.verixstaff.redis.threads.ThreadSubscriber;
 import com.verixpvp.verixstaff.reports.units.UnitReport;
+import com.verixpvp.verixstaff.staffmode.units.UnitRandomTeleport;
+import com.verixpvp.verixstaff.staffmode.units.UnitStaffMode;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.bukkit.entity.Player;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Protocol;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
+@MavenLibraries(value = {
+        @MavenLibrary(groupId = "org.mariadb.jdbc", artifactId = "mariadb-java-client", version = "2.4.3"),
+        @MavenLibrary(groupId = "com.zaxxer", artifactId = "HikariCP", version = "3.3.1"),
+})
 public class VerixStaff extends Module {
 
     private static VerixStaff instance;
 
     private HikariDataSource hikariDataSource;
-
-    private PreparedStatement stmtInsertReport;
-    private PreparedStatement stmtGetReports;
-
-    private UnitReport unitReport;
+    private JedisPool jedisPool;
+    private ThreadSubscriber threadSubscriber;
 
     public static VerixStaff getInstance() {
         return instance;
@@ -43,12 +44,20 @@ public class VerixStaff extends Module {
             return;
         }
 
-        registerUnits(unitReport = new UnitReport());
+        if (!setupRedis()) {
+            getLogger().severe("Unable to start plugin, there was a problem initializing redis!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        registerUnits(UnitReport.getInstance(), UnitStaffMode.getInstance(), new UnitRandomTeleport());
     }
 
     @Override
     public void disable() {
         hikariDataSource.close();
+        threadSubscriber.getStaffPubSub().unsubscribe();
+        jedisPool.destroy();
         instance = null;
     }
 
@@ -70,12 +79,6 @@ public class VerixStaff extends Module {
             Class.forName("org.mariadb.jdbc.MariaDbDataSource");
             config.setDataSourceClassName("org.mariadb.jdbc.MariaDbDataSource");
             this.hikariDataSource = new HikariDataSource(config);
-
-            Connection connection = getConnection();
-
-            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS reports (player_uuid varchar(36) NOT NULL, time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, context varchar(256) NOT NULL, reason varchar(1024) NOT NULL, reporter varchar(36) NOT NULL)");
-            this.stmtInsertReport = connection.prepareStatement("INSERT INTO reports (player_uuid, context, reason, reporter) VALUES(?,?,?,?)");
-            this.stmtGetReports = connection.prepareStatement("SELECT * FROM reports WHERE player_uuid = ?");
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
@@ -83,51 +86,25 @@ public class VerixStaff extends Module {
         return true;
     }
 
-    public void getReports(Player player, CallBack<List<Report>> callBack) {
-        getReports(player.getUniqueId(), callBack);
-    }
+    private boolean setupRedis() {
+        try {
 
-    public void getReports(UUID uuid, CallBack<List<Report>> callBack) {
-        getServer().getScheduler().runTaskAsynchronously(this, () -> {
-            try {
-                List<Report> reports = new ArrayList<>();
-                stmtGetReports.setString(1, uuid.toString());
-                ResultSet resultSet = stmtGetReports.executeQuery();
-                while (resultSet.next()) {
-                    String playerUuid = resultSet.getString("player_uuid");
-                    Date date = resultSet.getDate("time");
-                    String context = resultSet.getString("context");
-                    String reason = resultSet.getString("reason");
-                    String reporter = resultSet.getString("reporter");
-                    Report report = new Report(UUID.fromString(playerUuid), context, date, reason, UUID.fromString(reporter));
-                    reports.add(report);
-                }
-                callBack.call(reports);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+            String host = getConfig().getString("database.redis.host");
+            int port = getConfig().getInt("database.redis.port");
 
-    public void createReport(Player player, String reason, Player reporter, CallBack<Boolean> responseCallBack) {
-        createReport(player.getUniqueId(), reason, reporter.getUniqueId(), responseCallBack);
-    }
+            ClassLoader previous = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader(VerixStaff.class.getClassLoader());
 
-    public void createReport(UUID uuid, String reason, UUID reporter, CallBack<Boolean> responseCallBack) {
-        getServer().getScheduler().runTaskAsynchronously(this, () -> {
-            boolean response = true;
-            try {
-                stmtInsertReport.setString(1, uuid.toString());
-                stmtInsertReport.setString(2, getServerContext());
-                stmtInsertReport.setString(3, reason);
-                stmtInsertReport.setString(4, reporter.toString());
-                stmtInsertReport.execute();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                response = false;
-            }
-            responseCallBack.call(response);
-        });
+            this.jedisPool = getConfig().getBoolean("database.redis.authentication.enabled") ? new JedisPool(new JedisPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, getConfig().getString("database.redis.authentication.password")) : new JedisPool(new JedisPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT);
+            Thread.currentThread().setContextClassLoader(previous);
+
+            threadSubscriber = new ThreadSubscriber(new StaffPubSub());
+            threadSubscriber.start();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public HikariDataSource getHikariDataSource() {
@@ -142,7 +119,7 @@ public class VerixStaff extends Module {
         return getConfig().getString("server-context");
     }
 
-    public UnitReport getUnitReport() {
-        return unitReport;
+    public JedisPool getJedisPool() {
+        return jedisPool;
     }
 }

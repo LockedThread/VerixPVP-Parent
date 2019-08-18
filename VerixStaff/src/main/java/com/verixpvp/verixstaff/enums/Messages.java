@@ -10,7 +10,10 @@ public enum Messages {
 
     COMMAND_REPORT_SUCCESS("&a&lSUCCESS &8» &aYou have successfully sent in a report on &f{player} &afor &f{reason}"),
     COMMAND_REPORT_REASON_MUST_BE_LONGER("&c&lERROR &8» &cYour report reason must be longer than 10 characters!"),
-    COMMAND_REPORT_CANT_REPORT_YOURSELF("&c&lERROR &8» &cYou can't report yourself!");
+    COMMAND_REPORT_CANT_REPORT_YOURSELF("&c&lERROR &8» &cYou can't report yourself!"),
+
+    COMMAND_RANDOMTP_MUST_BE_IN_STAFFMODE("&c&lERROR &8» &cYou must be in staffmode to random teleport!"),
+    COMMAND_RANDOMTP_SENT("&a&lSUCCESS &8» &aYou have been randomly sent to &f{player}");
 
     private String rawMessage;
 

@@ -1,6 +1,6 @@
 package com.verixpvp.verixstaff;
 
-import com.verixpvp.verixstaff.reports.Report;
+import com.verixpvp.verixstaff.reports.objs.Report;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 

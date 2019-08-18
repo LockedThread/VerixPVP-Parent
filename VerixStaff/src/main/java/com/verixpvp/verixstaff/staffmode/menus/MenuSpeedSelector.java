@@ -7,9 +7,6 @@ import com.gameservergroup.gsgcore.utils.Utils;
 import com.verixpvp.verixstaff.VerixStaff;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-
-import java.util.function.Consumer;
 
 public class MenuSpeedSelector extends Menu {
 
@@ -30,17 +27,14 @@ public class MenuSpeedSelector extends Menu {
         for (String key : itemSection.getKeys(false)) {
             if (Utils.isInteger(key)) {
                 int slot = Integer.parseInt(key);
-                setItem(slot, MenuItem.of(ItemStackBuilder.of(itemSection.getConfigurationSection(key)).build()).setInventoryClickEventConsumer(new Consumer<InventoryClickEvent>() {
-                    @Override
-                    public void accept(InventoryClickEvent event) {
-                        float speed = itemSection.getFloat(key + ".speed");
-                        ((Player) event.getWhoClicked()).setFlySpeed(speed);
-                        ((Player) event.getWhoClicked()).setWalkSpeed(speed);
-                        event.setCancelled(true);
-                        if (VerixStaff.getInstance().getConfig().getBoolean("staffmode.speed-selector.menu.close-on-select")) {
-                            event.getWhoClicked().closeInventory();
-                        }
+                float speed = itemSection.getFloat(key + ".speed") / 10;
 
+                setItem(slot, MenuItem.of(ItemStackBuilder.of(itemSection.getConfigurationSection(key)).build()).setInventoryClickEventConsumer(event -> {
+                    ((Player) event.getWhoClicked()).setFlySpeed(speed);
+                    ((Player) event.getWhoClicked()).setWalkSpeed(speed);
+                    event.setCancelled(true);
+                    if (VerixStaff.getInstance().getConfig().getBoolean("staffmode.speed-selector.menu.close-on-select")) {
+                        event.getWhoClicked().closeInventory();
                     }
                 }));
             }

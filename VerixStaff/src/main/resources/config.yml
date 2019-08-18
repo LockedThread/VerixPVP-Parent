@@ -6,6 +6,12 @@ database:
     database: 'verixstaff'
     username: 'verixstaff'
     password: 'password'
+  redis:
+    host: 'localhost'
+    port: 6379
+    authentication:
+      enabled: false
+      password: 'password'
 reports:
   date-format: 'yyyy-MM-dd HH:mm:ss'
   can-report-yourself: true
@@ -46,7 +52,117 @@ reports:
         - '&cServer: &f{server-context}'
         - '&cReason: &f{reason}'
         - ''
+staff-roles:
+  owner:
+    name: 'Owner'
+    permission: 'verixstaff.role.owner'
+    priority: 2500.0
+    staff-list:
+      material: 'NETHER_STAR'
+      data:
+        enabled: false
+        value: 0
+  developer:
+    name: 'Developer'
+    permission: 'verixstaff.role.developer'
+    priority: 2400.0
+    staff-list:
+      material: 'EMERALD'
+      data:
+        enabled: false
+        value: 0
+  manager:
+    name: 'Manager'
+    permission: 'verixstaff.role.manager'
+    priority: 2300.0
+    staff-list:
+      material: 'DIAMOND'
+      data:
+        enabled: false
+        value: 0
+  senior-admin:
+    name: 'Senior Admin'
+    permission: 'verixstaff.role.senioradmin'
+    priority: 2200.0
+    staff-list:
+      material: 'GOLD_INGOT'
+      data:
+        enabled: false
+        value: 0
+  admin:
+    name: 'Admin'
+    permission: 'verixstaff.role.admin'
+    priority: 2100.0
+    staff-list:
+      material: 'GOLD_NUGGET'
+      data:
+        enabled: false
+        value: 0
+  senior-mod:
+    name: 'Senior Mod'
+    permission: 'verixstaff.role.seniormod'
+    priority: 2000.0
+    staff-list:
+      material: 'REDSTONE'
+      data:
+        enabled: false
+        value: 0
+  mod+:
+    name: 'Mod+'
+    permission: 'verixstaff.role.mod+'
+    priority: 1900.0
+    staff-list:
+      material: 'IRON_INGOT'
+      data:
+        enabled: false
+        value: 0
+  mod:
+    name: 'Mod'
+    permission: 'verixstaff.role.mod'
+    priority: 1800.0
+    staff-list:
+      material: 'BRICK'
+      data:
+        enabled: false
+        value: 0
+  helper:
+    name: 'Helper'
+    permission: 'verixstaff.role.helper'
+    priority: 1700.0
+    staff-list:
+      material: 'STICK'
+      data:
+        enabled: false
+        value: 0
+
+staff-list:
+  menu:
+    name: '&cStaffList'
+    size: 54
+    blocked-slots:
+      - 45
+      - 46
+      - 47
+      - 48
+      - 49
+      - 50
+      - 51
+      - 52
+      - 53
+    items:
+      next-page-item:
+        slot: 53
+        material: 'STAINED_GLASS_PANE'
+        data: 'LIME'
+        name: '&aClick to view the next page!'
+      previous-page-item:
+        slot: 45
+        material: 'STAINED_GLASS_PANE'
+        data: 'RED'
+        name: '&aClick to view the previous page!'
 staffmode:
+  random-teleport:
+    require-staffmode: true
   speed-selector:
     menu:
       name: ''
@@ -60,7 +176,45 @@ staffmode:
         9:
           material: 'WOOL'
           data: 'RED'
-          name: '&cNormal Speed (0.1x)'
+          name: '&cNormal Speed (1x)'
           lore:
             - ''
-            - ' &e'
+            - ' &eClick to set your speed 1'
+            - ''
+          speed: 1
+        11:
+          material: 'WOOL'
+          data: 'ORANGE'
+          name: '&6Normal Speed (2.5x)'
+          lore:
+            - ''
+            - ' &eClick to set your speed 2.5'
+            - ''
+          speed: 2.5
+        13:
+          material: 'WOOL'
+          data: 'YELLOW'
+          name: '&eNormal Speed (5x)'
+          lore:
+            - ''
+            - ' &eClick to set your speed 5'
+            - ''
+          speed: 5
+        15:
+          material: 'WOOL'
+          data: 'LIME'
+          name: '&aNormal Speed (7.5x)'
+          lore:
+            - ''
+            - ' &eClick to set your speed 7.5'
+            - ''
+          speed: 7.5
+        17:
+          material: 'WOOL'
+          data: 'BLUE'
+          name: '&1Normal Speed (10x)'
+          lore:
+            - ''
+            - ' &eClick to set your speed 10'
+            - ''
+          speed: 10

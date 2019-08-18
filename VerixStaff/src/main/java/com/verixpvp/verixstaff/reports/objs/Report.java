@@ -1,6 +1,5 @@
 package com.verixpvp.verixstaff.reports.objs;
 
-import com.verixpvp.verixstaff.VerixStaff;
 import com.verixpvp.verixstaff.reports.units.UnitReport;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -55,10 +54,9 @@ public class Report {
     }
 
     public ItemStack getIncidentItemStack() {
-        UnitReport unitReport = VerixStaff.getInstance().getUnitReport();
-        ItemStack item = unitReport.getPlainIncidentItemStack().clone();
+        ItemStack item = UnitReport.getInstance().getPlainIncidentItemStack().clone();
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.setLore(itemMeta.getLore().stream().map(s -> s.replace("{time}", unitReport.getDateFormat().format(getTime()))
+        itemMeta.setLore(itemMeta.getLore().stream().map(s -> s.replace("{time}", UnitReport.getInstance().getDateFormat().format(getTime()))
                 .replace("{reporterUUID}", getPlayer().getName())
                 .replace("{server-context}", serverContext)
                 .replace("{reason}", reason)

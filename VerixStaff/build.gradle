@@ -1,8 +1,6 @@
 group 'com.verixpvp'
 version '1.0-SNAPSHOT'
 
-apply plugin: "com.github.johnrengelman.shadow"
-
 jar {
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
@@ -10,23 +8,9 @@ jar {
 }
 
 dependencies {
-    implementation(group: 'net.techcable.tacospigot', name: 'server', version: '1.8.8-R0.2-SNAPSHOT') {
-        exclude group: 'it.unimi.dsi', module: 'fastutil'
-    }
+    implementation group: 'net.techcable.tacospigot', name: 'server', version: '1.8.8-R0.2-SNAPSHOT'
     implementation libs.hikaricp
     implementation libs.mariadb
-}
-
-shadowJar {
-    version = null
-    classifier = null
-    dependencies {
-        include(dependency(libs.hikaricp))
-        include(dependency(libs.mariadb))
-        exclude(dependency('net.techcable.tacospigot:server:1.8.8-R0.2-SNAPSHOT'))
-    }
-}
-
-artifacts {
-    archives shadowJar
+    compile libs.jedis
+    compile libs.apachecommonspool2
 }

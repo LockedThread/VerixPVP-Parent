@@ -1,9 +1,14 @@
 package com.verixpvp.verixstaff.staffmode.objs;
 
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 
 public class StaffPlayer {
 
-    private Player player;
-    private
+    private OfflinePlayer offlinePlayer;
+    private boolean staffMode, staffChat;
+    private String role, serverContext;
+
+    public StaffPlayer(OfflinePlayer offlinePlayer) {
+
+    }
 }

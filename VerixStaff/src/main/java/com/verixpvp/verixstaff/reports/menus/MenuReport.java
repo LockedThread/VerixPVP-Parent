@@ -1,9 +1,9 @@
 package com.verixpvp.verixstaff.reports.menus;
 
 import com.gameservergroup.gsgcore.menus.Menu;
-import com.gameservergroup.gsgcore.menus.MenuItem;
 import com.verixpvp.verixstaff.VerixStaff;
 import com.verixpvp.verixstaff.reports.objs.Report;
+import com.verixpvp.verixstaff.reports.units.UnitReport;
 import org.bukkit.OfflinePlayer;
 
 import java.util.List;
@@ -31,21 +31,17 @@ public class MenuReport extends Menu {
 
     @Override
     public void initialize() {
-        MenuItem previous = VerixStaff.getInstance().getUnitReport().getPreviousPageItem();
-        int previousSlot = VerixStaff.getInstance().getConfig().getInt("reports.menu.previous-page-item.slot");
-        setItem(previousSlot, previous);
-        MenuItem nextPageItem = VerixStaff.getInstance().getUnitReport().getNextPageItem();
-        setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.next-page-item.slot"), nextPageItem);
+        setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.previous-page-item.slot"), UnitReport.getInstance().getPreviousPageItem());
+        setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.next-page-item.slot"), UnitReport.getInstance().getNextPageItem());
 
-        int startIndex = getStartIndex();
-
-        int endIndex = getEndIndex();
         int slot = 0;
-        for (int i = startIndex; i < endIndex; i++) {
+        int startIndex = getStartIndex();
+        while (startIndex < getEndIndex()) {
             if (!blockedSlots.contains(slot)) {
-                setItem(slot, reportList.get(i).getIncidentItemStack());
+                setItem(slot, reportList.get(startIndex).getIncidentItemStack());
             }
             slot++;
+            startIndex++;
         }
     }
 

@@ -10,16 +10,21 @@ import com.verixpvp.verixstaff.VerixStaff;
 import com.verixpvp.verixstaff.enums.Messages;
 import com.verixpvp.verixstaff.reports.menus.MenuReport;
 import com.verixpvp.verixstaff.reports.objs.Report;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class UnitReport extends Unit {
+
+    private static UnitReport ourInstance;
 
     private SimpleDateFormat dateFormat;
 
@@ -27,8 +32,28 @@ public class UnitReport extends Unit {
     private MenuItem nextPageItem;
     private MenuItem previousPageItem;
 
+    private PreparedStatement stmtInsertReport;
+    private PreparedStatement stmtGetReports;
+
+    private UnitReport() {
+    }
+
+    public static UnitReport getInstance() {
+        return ourInstance == null ? ourInstance = new UnitReport() : ourInstance;
+    }
+
     @Override
     public void setup() {
+        try (Connection connection = VerixStaff.getInstance().getConnection()) {
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS reports (player_uuid varchar(36) NOT NULL, time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, context varchar(256) NOT NULL, reason varchar(1024) NOT NULL, reporter varchar(36) NOT NULL)");
+            this.stmtInsertReport = connection.prepareStatement("INSERT INTO reports (player_uuid, context, reason, reporter) VALUES(?,?,?,?)");
+            this.stmtGetReports = connection.prepareStatement("SELECT * FROM reports WHERE player_uuid = ?");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            VerixStaff.getInstance().getServer().getPluginManager().disablePlugin(VerixStaff.getInstance());
+            return;
+        }
+
         this.dateFormat = new SimpleDateFormat(VerixStaff.getInstance().getConfig().getString("reports.date-format"));
         this.plainIncidentItemStack = ItemStackBuilder.of(VerixStaff.getInstance().getConfig().getConfigurationSection("reports.menu.incident-item")).build();
         this.nextPageItem = MenuItem.of(ItemStackBuilder.of(VerixStaff.getInstance().getConfig().getConfigurationSection("reports.menu.next-page-item")).build())
@@ -70,7 +95,7 @@ public class UnitReport extends Unit {
                                     return;
                                 }
                             }
-                            VerixStaff.getInstance().createReport(c.getSender().getUniqueId(), reason, offlinePlayer.getUniqueId(), new CallBack<Boolean>() {
+                            createReport(c.getSender().getUniqueId(), reason, offlinePlayer.getUniqueId(), new CallBack<Boolean>() {
                                 @Override
                                 public void call(Boolean aBoolean) {
                                     if (aBoolean) {
@@ -95,7 +120,7 @@ public class UnitReport extends Unit {
                         if (offlinePlayerOptional.isPresent()) {
                             OfflinePlayer offlinePlayer = offlinePlayerOptional.get();
                             c.reply("&ePlease wait a moment whilst we collect reports for " + offlinePlayer.getName() + "...");
-                            VerixStaff.getInstance().getReports(offlinePlayer.getUniqueId(), new CallBack<List<Report>>() {
+                            getReports(offlinePlayer.getUniqueId(), new CallBack<List<Report>>() {
                                 @Override
                                 public void call(List<Report> reports) {
                                     if (c.isPlayer()) {
@@ -115,6 +140,45 @@ public class UnitReport extends Unit {
                         c.reply("&c&lREPORTS &8» &f/reports [player]");
                     }
                 }).post(VerixStaff.getInstance(), "reports", "viewreports", "getreports");
+    }
+
+    public void getReports(UUID uuid, CallBack<List<Report>> callBack) {
+        Bukkit.getScheduler().runTaskAsynchronously(VerixStaff.getInstance(), () -> {
+            try {
+                List<Report> reports = new ArrayList<>();
+                stmtGetReports.setString(1, uuid.toString());
+                ResultSet resultSet = stmtGetReports.executeQuery();
+                while (resultSet.next()) {
+                    String playerUuid = resultSet.getString("player_uuid");
+                    Date date = resultSet.getDate("time");
+                    String context = resultSet.getString("context");
+                    String reason = resultSet.getString("reason");
+                    String reporter = resultSet.getString("reporter");
+                    Report report = new Report(UUID.fromString(playerUuid), context, date, reason, UUID.fromString(reporter));
+                    reports.add(report);
+                }
+                callBack.call(reports);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void createReport(UUID uuid, String reason, UUID reporter, CallBack<Boolean> responseCallBack) {
+        Bukkit.getScheduler().runTaskAsynchronously(VerixStaff.getInstance(), () -> {
+            boolean response = true;
+            try {
+                stmtInsertReport.setString(1, uuid.toString());
+                stmtInsertReport.setString(2, VerixStaff.getInstance().getServerContext());
+                stmtInsertReport.setString(3, reason);
+                stmtInsertReport.setString(4, reporter.toString());
+                stmtInsertReport.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                response = false;
+            }
+            responseCallBack.call(response);
+        });
     }
 
     public ItemStack getPlainIncidentItemStack() {
