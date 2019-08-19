@@ -5,8 +5,12 @@ import com.gameservergroup.gsgcore.menus.Menu;
 import com.gameservergroup.gsgcore.menus.MenuItem;
 import com.gameservergroup.gsgcore.utils.Utils;
 import com.verixpvp.verixstaff.VerixStaff;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 
 public class MenuSpeedSelector extends Menu {
 
@@ -37,6 +41,18 @@ public class MenuSpeedSelector extends Menu {
                         event.getWhoClicked().closeInventory();
                     }
                 }));
+            }
+        }
+
+        if (VerixStaff.getInstance().getConfig().getBoolean("staffmode.speed-selector.menu.fill.enabled")) {
+            DyeColor dyeColor = DyeColor.valueOf(VerixStaff.getInstance().getConfig().getString("staffmode.speed-selector.menu.fill.color").toUpperCase());
+            ItemStackBuilder itemStackBuilder = ItemStackBuilder.of(Material.STAINED_GLASS_PANE).setDyeColor(dyeColor).setDisplayName(" ");
+            if (VerixStaff.getInstance().getConfig().getBoolean("staffmode.speed-selector.menu.fill.enchanted")) {
+                itemStackBuilder.addEnchant(Enchantment.DURABILITY, 1);
+                itemStackBuilder.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            }
+            while (getInventory().firstEmpty() != -1) {
+                setItem(getInventory().firstEmpty(), itemStackBuilder.build());
             }
         }
     }
