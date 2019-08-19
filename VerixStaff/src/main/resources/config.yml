@@ -56,6 +56,7 @@ staff-roles:
   owner:
     name: 'Owner'
     permission: 'verixstaff.role.owner'
+    color: 'RED'
     priority: 2500.0
     staff-list:
       material: 'NETHER_STAR'
@@ -66,6 +67,7 @@ staff-roles:
     name: 'Developer'
     permission: 'verixstaff.role.developer'
     priority: 2400.0
+    color: 'LIGHT_PURPLE'
     staff-list:
       material: 'EMERALD'
       data:
@@ -75,6 +77,7 @@ staff-roles:
     name: 'Manager'
     permission: 'verixstaff.role.manager'
     priority: 2300.0
+    color: 'DARK_RED'
     staff-list:
       material: 'DIAMOND'
       data:
@@ -84,6 +87,7 @@ staff-roles:
     name: 'Senior Admin'
     permission: 'verixstaff.role.senioradmin'
     priority: 2200.0
+    color: 'DARK_RED'
     staff-list:
       material: 'GOLD_INGOT'
       data:
@@ -93,6 +97,7 @@ staff-roles:
     name: 'Admin'
     permission: 'verixstaff.role.admin'
     priority: 2100.0
+    color: 'DARK_RED'
     staff-list:
       material: 'GOLD_NUGGET'
       data:
@@ -102,6 +107,7 @@ staff-roles:
     name: 'Senior Mod'
     permission: 'verixstaff.role.seniormod'
     priority: 2000.0
+    color: 'DARK_BLUE'
     staff-list:
       material: 'REDSTONE'
       data:
@@ -111,6 +117,7 @@ staff-roles:
     name: 'Mod+'
     permission: 'verixstaff.role.mod+'
     priority: 1900.0
+    color: 'GOLD'
     staff-list:
       material: 'IRON_INGOT'
       data:
@@ -120,6 +127,7 @@ staff-roles:
     name: 'Mod'
     permission: 'verixstaff.role.mod'
     priority: 1800.0
+    color: 'BLUE'
     staff-list:
       material: 'BRICK'
       data:
@@ -129,12 +137,12 @@ staff-roles:
     name: 'Helper'
     permission: 'verixstaff.role.helper'
     priority: 1700.0
+    color: 'AQUA'
     staff-list:
       material: 'STICK'
       data:
         enabled: false
         value: 0
-
 staff-list:
   menu:
     name: '&cStaffList'
@@ -150,6 +158,15 @@ staff-list:
       - 52
       - 53
     items:
+      staff-player-item:
+        default-material: 'EMERALD_BLOCK'
+        name: '{color}{player}'
+        lore:
+          - ''
+          - ' &eServer: &f{server}'
+          - ' &eRole: {color}{role}'
+          - ' '
+          - ''
       next-page-item:
         slot: 53
         material: 'STAINED_GLASS_PANE'

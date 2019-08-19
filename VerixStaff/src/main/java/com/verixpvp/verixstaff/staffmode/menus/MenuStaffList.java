@@ -37,19 +37,15 @@ public class MenuStaffList extends Menu {
         Map<UUID, StaffPlayer> staffPlayerMap = UnitStaffMode.getInstance().getStaffPlayerMap();
         ArrayList<StaffPlayer> staffPlayers = new ArrayList<>(staffPlayerMap.values());
 
-
-        setItem(VerixStaff.getInstance().getConfig().getInt(""), UnitStaffMode.getInstance().getNextPageItem());
-
         setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.previous-page-item.slot"), UnitStaffMode.getInstance().getPreviousPageItem());
         setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.next-page-item.slot"), UnitStaffMode.getInstance().getNextPageItem());
-
-
+        
         int slot = 0;
         int startIndex = getStartIndex();
         while (startIndex < getEndIndex()) {
             if (!blockedSlots.contains(slot)) {
                 StaffPlayer staffPlayer = staffPlayers.get(startIndex);
-                setItem(slot, staffPlayer);
+                setItem(slot, staffPlayer.getMenuItem());
             }
             slot++;
             startIndex++;
