@@ -17,11 +17,13 @@ public class MenuStaffList extends Menu {
 
     private int page = 0;
     private int totalPages;
+    private boolean queueUpdate;
 
     private MenuStaffList() {
         super(VerixStaff.getInstance().getConfig().getString("staff-list.menu.name"), VerixStaff.getInstance().getConfig().getInt("staff-list.menu.size"));
         int mathSlots = getInventory().getSize() - getBlockedSlots().size();
         this.totalPages = UnitStaffMode.getInstance().getStaffPlayerMap().size() / mathSlots;
+        this.queueUpdate = true;
     }
 
     private static List<Integer> getBlockedSlots() {
@@ -39,7 +41,7 @@ public class MenuStaffList extends Menu {
 
         setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.previous-page-item.slot"), UnitStaffMode.getInstance().getPreviousPageItem());
         setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.next-page-item.slot"), UnitStaffMode.getInstance().getNextPageItem());
-        
+
         int slot = 0;
         int startIndex = getStartIndex();
         while (startIndex < getEndIndex()) {
@@ -91,5 +93,13 @@ public class MenuStaffList extends Menu {
     private void update() {
         clear();
         initialize();
+    }
+
+    public boolean isQueueUpdate() {
+        return queueUpdate;
+    }
+
+    public void setQueueUpdate(boolean queueUpdate) {
+        this.queueUpdate = queueUpdate;
     }
 }

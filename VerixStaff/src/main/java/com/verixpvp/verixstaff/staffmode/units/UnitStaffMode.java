@@ -8,6 +8,7 @@ import com.gameservergroup.gsgcore.menus.MenuItem;
 import com.gameservergroup.gsgcore.units.Unit;
 import com.verixpvp.verixstaff.VerixStaff;
 import com.verixpvp.verixstaff.reports.menus.MenuReport;
+import com.verixpvp.verixstaff.staffmode.menus.MenuStaffList;
 import com.verixpvp.verixstaff.staffmode.objs.Role;
 import com.verixpvp.verixstaff.staffmode.objs.StaffPlayer;
 import org.bukkit.Bukkit;
@@ -73,18 +74,20 @@ public class UnitStaffMode extends Unit {
         CommandPost.create()
                 .builder()
                 .assertPlayer()
-                .assertPermission("verixstaff.stafflist")
                 .handler(c -> {
-                    if (c.getSender().hasPermission("verixstaff.staff")) {
-
+                    if (MenuStaffList.getInstance().isQueueUpdate()) {
+                        MenuStaffList.getInstance().clear();
+                        MenuStaffList.getInstance().initialize();
+                        MenuStaffList.getInstance().setQueueUpdate(false);
                     }
-                    c.reply(staffPlayerMap.toString());
+                    c.getSender().openInventory(MenuStaffList.getInstance().getInventory());
                 }).post(VerixStaff.getInstance(), "stafflist");
 
         EventPost.of(PlayerJoinEvent.class)
                 .filter(event -> event.getPlayer().hasPermission("verixstaff.staff"))
                 .handle(event -> {
                     staffPlayerMap.put(event.getPlayer().getUniqueId(), new StaffPlayer(event.getPlayer()));
+                    MenuStaffList.getInstance().setQueueUpdate(true);
                     Bukkit.getScheduler().runTaskAsynchronously(VerixStaff.getInstance(), () -> {
                         try (Jedis jedis = VerixStaff.getInstance().getJedisPool().getResource()) {
                             jedis.publish("online", GSG_CORE.getGson().toJson(staffPlayerMap));
@@ -97,6 +100,7 @@ public class UnitStaffMode extends Unit {
                 .filter(event -> event.getPlayer().hasPermission("verixstaff.staff"))
                 .handle(event -> {
                     staffPlayerMap.remove(event.getPlayer().getUniqueId());
+                    MenuStaffList.getInstance().setQueueUpdate(true);
                     Bukkit.getScheduler().runTaskAsynchronously(VerixStaff.getInstance(), () -> {
                         try (Jedis jedis = VerixStaff.getInstance().getJedisPool().getResource()) {
                             jedis.publish("online", GSG_CORE.getGson().toJson(staffPlayerMap));
