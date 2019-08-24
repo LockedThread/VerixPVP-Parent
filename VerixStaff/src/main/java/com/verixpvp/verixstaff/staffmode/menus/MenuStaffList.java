@@ -5,10 +5,11 @@ import com.verixpvp.verixstaff.VerixStaff;
 import com.verixpvp.verixstaff.staffmode.objs.StaffPlayer;
 import com.verixpvp.verixstaff.staffmode.units.UnitStaffMode;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MenuStaffList extends Menu {
 
@@ -37,14 +38,15 @@ public class MenuStaffList extends Menu {
     @Override
     public void initialize() {
         Map<UUID, StaffPlayer> staffPlayerMap = UnitStaffMode.getInstance().getStaffPlayerMap();
-        ArrayList<StaffPlayer> staffPlayers = new ArrayList<>(staffPlayerMap.values());
+        List<StaffPlayer> staffPlayers = staffPlayerMap.values().stream().sorted(Comparator.comparingDouble(StaffPlayer::getPriority)).collect(Collectors.toList());
 
-        setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.previous-page-item.slot"), UnitStaffMode.getInstance().getPreviousPageItem());
-        setItem(VerixStaff.getInstance().getConfig().getInt("reports.menu.next-page-item.slot"), UnitStaffMode.getInstance().getNextPageItem());
+        setItem(VerixStaff.getInstance().getConfig().getInt("staff-list.menu.items.previous-page-item.slot"), UnitStaffMode.getInstance().getPreviousPageItem());
+        setItem(VerixStaff.getInstance().getConfig().getInt("staff-list.menu.items.next-page-item.slot"), UnitStaffMode.getInstance().getNextPageItem());
 
         int slot = 0;
         int startIndex = getStartIndex();
         while (startIndex < getEndIndex()) {
+            if (staffPlayers.size() == startIndex) break;
             if (!blockedSlots.contains(slot)) {
                 StaffPlayer staffPlayer = staffPlayers.get(startIndex);
                 setItem(slot, staffPlayer.getMenuItem());

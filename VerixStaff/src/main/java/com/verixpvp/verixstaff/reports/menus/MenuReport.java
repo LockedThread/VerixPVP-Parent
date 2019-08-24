@@ -37,6 +37,7 @@ public class MenuReport extends Menu {
         int slot = 0;
         int startIndex = getStartIndex();
         while (startIndex < getEndIndex()) {
+            if (startIndex == reportList.size()) break;
             if (!blockedSlots.contains(slot)) {
                 setItem(slot, reportList.get(startIndex).getIncidentItemStack());
             }
