@@ -6,8 +6,8 @@ import com.gameservergroup.gsgcore.events.EventPost;
 import com.gameservergroup.gsgcore.items.ItemStackBuilder;
 import com.gameservergroup.gsgcore.menus.MenuItem;
 import com.gameservergroup.gsgcore.units.Unit;
+import com.google.common.reflect.TypeToken;
 import com.verixpvp.verixstaff.VerixStaff;
-import com.verixpvp.verixstaff.reports.menus.MenuReport;
 import com.verixpvp.verixstaff.staffmode.menus.MenuStaffList;
 import com.verixpvp.verixstaff.staffmode.objs.Role;
 import com.verixpvp.verixstaff.staffmode.objs.StaffPlayer;
@@ -41,6 +41,10 @@ public class UnitStaffMode extends Unit {
 
     @Override
     public void setup() {
+        try (Jedis jedis = VerixStaff.getInstance().getJedisPool().getResource()) {
+            GSG_CORE.getGson().fromJson(jedis.get("online-players"), new TypeToken<HashMap<UUID, StaffPlayer>>() {
+            }.getType());
+        }
         this.staffPlayerMap = new HashMap<>();
 
         ConfigurationSection staffRolesSection = VerixStaff.getInstance().getConfig().getConfigurationSection("staff-roles");
@@ -50,15 +54,15 @@ public class UnitStaffMode extends Unit {
 
         this.nextPageItem = MenuItem.of(ItemStackBuilder.of(VerixStaff.getInstance().getConfig().getConfigurationSection("staff-list.menu.items.next-page-item")).build())
                 .setInventoryClickEventConsumer(event -> {
-                    if (event.getClickedInventory() != null && event.getClickedInventory().getHolder() instanceof MenuReport) {
-                        ((MenuReport) event.getClickedInventory().getHolder()).nextPage();
+                    if (event.getClickedInventory() != null && event.getClickedInventory().getHolder() instanceof MenuStaffList) {
+                        ((MenuStaffList) event.getClickedInventory().getHolder()).nextPage();
                         event.setCancelled(true);
                     }
                 });
         this.previousPageItem = MenuItem.of(ItemStackBuilder.of(VerixStaff.getInstance().getConfig().getConfigurationSection("staff-list.menu.items.previous-page-item")).build())
                 .setInventoryClickEventConsumer(event -> {
-                    if (event.getClickedInventory() != null && event.getClickedInventory().getHolder() instanceof MenuReport) {
-                        ((MenuReport) event.getClickedInventory().getHolder()).previousPage();
+                    if (event.getClickedInventory() != null && event.getClickedInventory().getHolder() instanceof MenuStaffList) {
+                        ((MenuStaffList) event.getClickedInventory().getHolder()).previousPage();
                         event.setCancelled(true);
                     }
                 });
@@ -90,7 +94,7 @@ public class UnitStaffMode extends Unit {
                     MenuStaffList.getInstance().setQueueUpdate(true);
                     Bukkit.getScheduler().runTaskAsynchronously(VerixStaff.getInstance(), () -> {
                         try (Jedis jedis = VerixStaff.getInstance().getJedisPool().getResource()) {
-                            jedis.publish("online", GSG_CORE.getGson().toJson(staffPlayerMap));
+                            jedis.publish("online", VerixStaff.getInstance().getServerContext() + ":" + GSG_CORE.getGson().toJson(staffPlayerMap));
                             jedis.set("online-players", GSGCore.getInstance().getGson().toJson(UnitStaffMode.getInstance().getStaffPlayerMap()));
                         }
                     });
@@ -103,7 +107,7 @@ public class UnitStaffMode extends Unit {
                     MenuStaffList.getInstance().setQueueUpdate(true);
                     Bukkit.getScheduler().runTaskAsynchronously(VerixStaff.getInstance(), () -> {
                         try (Jedis jedis = VerixStaff.getInstance().getJedisPool().getResource()) {
-                            jedis.publish("online", GSG_CORE.getGson().toJson(staffPlayerMap));
+                            jedis.publish("online", VerixStaff.getInstance().getServerContext() + ":" + GSG_CORE.getGson().toJson(staffPlayerMap));
                             jedis.set("online-players", GSGCore.getInstance().getGson().toJson(UnitStaffMode.getInstance().getStaffPlayerMap()));
                         }
                     });
